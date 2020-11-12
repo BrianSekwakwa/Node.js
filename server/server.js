@@ -7,22 +7,34 @@
 
 const http = require("http");
 const fs = require("fs");
+const _ = require("lodash");
 
 const server = http.createServer((req, res) => {
-  console.log(req.url, req.method);
+
+  const randomNumber = _.random(0,20);
+  console.log(randomNumber);
+
+  const greet = _.once(() => {
+    console.log("Hello Friend");
+  });
+
+  greet();
+  greet();
+
+  // -- Set Header content-type
 
   res.setHeader("Content-Type", "text/html");
 
   // -- Writing response to the browser
 
-  //   res.write("<h1>Profile</h1>");
-  //   res.write("<p>My name is Brian</p>");
-  //   res.write("<p>I am 26 years old</p>");
-  //   res.end();
+  // res.write("<h1>Profile</h1>");
+  // res.write("<p>My name is Brian</p>");
+  // res.write("<p>I am 26 years old</p>");
+  // res.end();
 
   // -- Using file system to read and send files to the browser from our computer
 
-  // fs.readFile("./views/index.html", (err, data) => {
+  // fs.readFile("./server/views/index.html", (err, data) => {
   //   if (err) {
   //     console.log(err);
   //     res.end();
@@ -44,7 +56,7 @@ const server = http.createServer((req, res) => {
       path += "about.html";
       res.statusCode = 200;
       break;
-    case "/about-me":
+    case "/about-us":
       res.statusCode = 301;
       res.setHeader("Location", "/about"); // re-directing users if they used an old url
       res.end();
@@ -58,6 +70,7 @@ const server = http.createServer((req, res) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       console.log(err);
+      res.end();
     } else {
       res.end(data);
     }
