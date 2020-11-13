@@ -2,19 +2,27 @@
 // - Express runs from top to down
 // - Put your catch all statements at the bottom of the code
 
-const { static } = require("express");
 const express = require("express");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
+const Blog = require("./models/blog");
+const { result } = require("lodash");
 
 // -- Instantiating an express app
 const app = express();
+
+// -- Connection String to MongoDB
+const dbURI = "mongodb+srv://briancodes:refiloe1994@cluster0.xaody.mongodb.net/node-tuts?retryWrites=true&w=majority"
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true})
+.then((result) => app.listen(3000))
+.catch((err) => console.log(err));
 
 // -- Register view engine
 app.set('view engine', 'ejs');
 // app.set("views", "./NameOfFolder") -- If name your folder something else
 
 // -- Listening to requests
-app.listen(3000);
+
 
 // -- Using Middlewares
 // app.use((req,res, next) => {
@@ -36,20 +44,62 @@ app.use(morgan('dev'));
 // -- Serving static Files from the server
 app.use(express.static('public'));
 
+// -- Mongoose and Mongo sandox routes
+// app.get("/add-blog", (req,res) => {
+//     const blog = new Blog({
+//         title: 'new blog 2',
+//         snippet: 'about my new blog',
+//         body: 'more about my new blog'
+//     });
+
+//     // Saving data to the database
+//     blog.save()
+//     .then((result) => {
+//         res.send(result);
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     })
+// })
+
+// app.get("/all-blogs", (req,res) => {
+//     // Getting all the data in a specific collection using find
+//     Blog.find()
+//     .then((result) => {
+//         res.send(result);
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     })
+// })
+
+// app.get("/single-blog", (req,res) => {
+//     Blog.findById('5fae44229d3d2675649831b1')
+//     .then((result) => {
+//         res.send(result);
+//     })
+//     .catch((err) => {
+//         console.log(err)
+//     })
+// })
+
 app.get("/", (req, res) => {
     // res.send("<p>Home Page</p>");
     // res.sendFile(__dirname + "/views/index.html"); -- This is one way to do it
     // res.sendFile("./views/index.html", { root: __dirname});
 
-    const blogs = [
-        {title: "Yoshi finds eggs", snippet: "Lorem ipsum dolor sit amet consectetur"},
-        {title: "Mario finds stars", snippet: "Lorem ipsum dolor sit amet consectetur"},
-        {title: "How to defeat bowser", snippet: "Lorem ipsum dolor sit amet consectetur"}
-    ]
+    res.redirect("/blogs")
 
-    // -- Using ejs
-    res.render("index", { title: "Home", blogs});
+})
 
+app.get("/blogs", (req,res) => {
+    Blog.find().sort({ createdAt: -1 })
+    .then((result) => {
+        res.render('index', { title: 'All Blogs', blogs: result });
+    })
+    .catch((err) => {
+        console.log(err);
+    })
 })
 
 app.get("/about", (req, res) => {
